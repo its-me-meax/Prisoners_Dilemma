@@ -21,10 +21,12 @@ const AdminPanel = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [sampleStrategies, setSampleStrategies] = useState([]);
   const [payoffMatrix, setPayoffMatrix] = useState({
-    cc_a: 3, cc_b: 3,
-    cd_a: 0, cd_b: 5,
-    dc_a: 5, dc_b: 0,
-    dd_a: 1, dd_b: 1,
+    c_2coop: 5,
+    c_1coop: 3,
+    c_0coop: 0,
+    d_2coop: 7,
+    d_1coop: 4,
+    d_0coop: 1,
   });
 
   // Team form state
@@ -81,10 +83,12 @@ const AdminPanel = () => {
       
       const m = matrixRes.data;
       setPayoffMatrix({
-        cc_a: m.CC[0], cc_b: m.CC[1],
-        cd_a: m.CD[0], cd_b: m.CD[1],
-        dc_a: m.DC[0], dc_b: m.DC[1],
-        dd_a: m.DD[0], dd_b: m.DD[1],
+        c_2coop: m.C[2],
+        c_1coop: m.C[1],
+        c_0coop: m.C[0],
+        d_2coop: m.D[2],
+        d_1coop: m.D[1],
+        d_0coop: m.D[0],
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -201,16 +205,6 @@ const AdminPanel = () => {
       fetchAllData();
     } catch (error) {
       toast.error('Failed to reset');
-    }
-  };
-
-  const startShowdown = async () => {
-    try {
-      await axios.post(`${API}/tournament/showdown`, {}, { headers: adminHeaders });
-      toast.success('Top 4 Showdown started!');
-      fetchAllData();
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to start showdown');
     }
   };
 
@@ -336,12 +330,7 @@ const AdminPanel = () => {
                 RESUME
               </button>
             )}
-            {tournament.status === 'finished' && (
-              <button onClick={startShowdown} className="cyber-btn flex items-center gap-2" data-testid="showdown-btn">
-                <Crown className="w-4 h-4" />
-                TOP 4 SHOWDOWN
-              </button>
-            )}
+            {/* Showdown removed for 3-player game */}
             <button onClick={resetTournament} className="cyber-btn cyber-btn-danger flex items-center gap-2" data-testid="reset-tournament-btn">
               <RotateCcw className="w-4 h-4" />
               RESET
@@ -539,89 +528,80 @@ const AdminPanel = () => {
                 <thead>
                   <tr>
                     <th></th>
-                    <th className="text-center">OPPONENT C</th>
-                    <th className="text-center">OPPONENT D</th>
+                    <th className="text-center">2 OTHERS COOP</th>
+                    <th className="text-center">1 OTHER COOP</th>
+                    <th className="text-center">0 OTHERS COOP</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="font-display">YOU C</td>
+                    <td className="font-display">YOU COOPERATE</td>
                     <td>
-                      <div className="flex items-center gap-2 justify-center">
+                      <div className="flex items-center justify-center">
                         <input
                           type="number"
-                          value={payoffMatrix.cc_a}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, cc_a: parseInt(e.target.value) || 0 })}
+                          value={payoffMatrix.c_2coop}
+                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, c_2coop: parseInt(e.target.value) || 0 })}
                           className="cyber-input w-16 text-center"
-                          data-testid="matrix-cc-a"
-                        />
-                        <span>,</span>
-                        <input
-                          type="number"
-                          value={payoffMatrix.cc_b}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, cc_b: parseInt(e.target.value) || 0 })}
-                          className="cyber-input w-16 text-center"
-                          data-testid="matrix-cc-b"
+                          data-testid="matrix-c-2coop"
                         />
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-2 justify-center">
+                      <div className="flex items-center justify-center">
                         <input
                           type="number"
-                          value={payoffMatrix.cd_a}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, cd_a: parseInt(e.target.value) || 0 })}
+                          value={payoffMatrix.c_1coop}
+                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, c_1coop: parseInt(e.target.value) || 0 })}
                           className="cyber-input w-16 text-center"
-                          data-testid="matrix-cd-a"
+                          data-testid="matrix-c-1coop"
                         />
-                        <span>,</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-center">
                         <input
                           type="number"
-                          value={payoffMatrix.cd_b}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, cd_b: parseInt(e.target.value) || 0 })}
+                          value={payoffMatrix.c_0coop}
+                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, c_0coop: parseInt(e.target.value) || 0 })}
                           className="cyber-input w-16 text-center"
-                          data-testid="matrix-cd-b"
+                          data-testid="matrix-c-0coop"
                         />
                       </div>
                     </td>
                   </tr>
                   <tr>
-                    <td className="font-display">YOU D</td>
+                    <td className="font-display">YOU DEFECT</td>
                     <td>
-                      <div className="flex items-center gap-2 justify-center">
+                      <div className="flex items-center justify-center">
                         <input
                           type="number"
-                          value={payoffMatrix.dc_a}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, dc_a: parseInt(e.target.value) || 0 })}
+                          value={payoffMatrix.d_2coop}
+                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, d_2coop: parseInt(e.target.value) || 0 })}
                           className="cyber-input w-16 text-center"
-                          data-testid="matrix-dc-a"
-                        />
-                        <span>,</span>
-                        <input
-                          type="number"
-                          value={payoffMatrix.dc_b}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, dc_b: parseInt(e.target.value) || 0 })}
-                          className="cyber-input w-16 text-center"
-                          data-testid="matrix-dc-b"
+                          data-testid="matrix-d-2coop"
                         />
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-2 justify-center">
+                      <div className="flex items-center justify-center">
                         <input
                           type="number"
-                          value={payoffMatrix.dd_a}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, dd_a: parseInt(e.target.value) || 0 })}
+                          value={payoffMatrix.d_1coop}
+                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, d_1coop: parseInt(e.target.value) || 0 })}
                           className="cyber-input w-16 text-center"
-                          data-testid="matrix-dd-a"
+                          data-testid="matrix-d-1coop"
                         />
-                        <span>,</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-center">
                         <input
                           type="number"
-                          value={payoffMatrix.dd_b}
-                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, dd_b: parseInt(e.target.value) || 0 })}
+                          value={payoffMatrix.d_0coop}
+                          onChange={(e) => setPayoffMatrix({ ...payoffMatrix, d_0coop: parseInt(e.target.value) || 0 })}
                           className="cyber-input w-16 text-center"
-                          data-testid="matrix-dd-b"
+                          data-testid="matrix-d-0coop"
                         />
                       </div>
                     </td>
@@ -631,7 +611,7 @@ const AdminPanel = () => {
             </div>
 
             <p className="text-sm text-muted-foreground mb-4">
-              Format: (Your Score, Opponent Score) | Default: C-C (3,3), D-C (5,0), C-D (0,5), D-D (1,1)
+              3-Player Payoff Matrix: Your score depends on how many of the other 2 players cooperated.
             </p>
 
             <button onClick={updatePayoffMatrix} className="cyber-btn" data-testid="update-matrix-btn">
